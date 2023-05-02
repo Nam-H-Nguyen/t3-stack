@@ -2,9 +2,14 @@ import styles from './index.module.css';
 import { type NextPage } from 'next';
 import Head from 'next/head';
 import { SignIn, SignInButton, SignOutButton, useUser } from '@clerk/nextjs';
+import { api } from '~/utils/api';
 
 const Home: NextPage = () => {
 	const user = useUser();
+  const { data, isLoading } = api.posts.getAll.useQuery();
+
+  if (isLoading) return <div>LOADING. . .</div>
+  if (!data) return <div>Something went wrong. . .</div>
 
 	return (
 		<>
@@ -15,9 +20,11 @@ const Home: NextPage = () => {
 			</Head>
 			<main className={styles.main}>
 				<div className={styles.container}>
-					{!user.isSignedIn && <SignInButton />}
-					{!!user.isSignedIn && <SignOutButton />}
+					{!user.isSignedIn ? <SignInButton /> : <SignOutButton />}
 				</div>
+        <div>
+          {data.map((post) => <div key={post.id}>{post.content}</div>)}
+        </div>
 			</main>
 		</>
 	);
